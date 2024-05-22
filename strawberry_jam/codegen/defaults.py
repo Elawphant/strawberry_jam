@@ -18,11 +18,11 @@ module_types = {
     },
     "create_form": {
         "dependency_folder_snake_case": "forms",
-        "name": "form",
+        "name": "create_form",
     },
     "update_form": {
         "dependency_folder_snake_case": "forms",
-        "name": "form",
+        "name": "update_form",
     },
     "create_input": {
         "dependency_folder_snake_case": "inputs",

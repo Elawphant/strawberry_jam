@@ -1,6 +1,6 @@
 from typing import Any
 from django.core.management.base import BaseCommand, CommandParser
-from strawberry_jam.chunks.django_relay.workflow import process
+from strawberry_jam.chunks.django_relay.workflow import process, process_schema
 from strawberry_jam.codegen.utils import validate_model
 
 class Command(BaseCommand):
@@ -8,7 +8,6 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             nargs="+",
-            const="models",
             dest="models",
             help="The models to generate the schema for",
             )
@@ -43,11 +42,14 @@ class Command(BaseCommand):
             )
 
     def handle(self, *args: Any, **options: Any) -> None:
+        schema_app_label = options.get("schema_app_label")
+        api_folder_name = options.get("api_folder_name")
         _options = {
-                "schema_app_label": options.get("schema_app_label"),
-                "api_folder_name": options.get("api_folder_name"),
+                "schema_app_label": schema_app_label,
+                "api_folder_name": api_folder_name,
                 "overwrite": options.get("overwrite"),
         }
+        print(options.get("models"))
         for model in options.get("models"):
             [model_app_label, model_name_pascal_case] = model.split(".")
             opts = {
@@ -57,4 +59,7 @@ class Command(BaseCommand):
             }
             validate_model(opts)
             process(opts)
+        
+            # collect all schema
+        process_schema(schema_app_label, api_folder_name)
 

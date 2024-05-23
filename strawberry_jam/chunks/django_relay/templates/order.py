@@ -1,7 +1,7 @@
 from strawberry_jam.jam import StrawberryJamTemplate
 from functools import cache
-from strawberry_jam.codegen.utils import pascal_case, snake_case
-from django.db.models import Field, OneToOneField, ManyToManyField, ForeignKey
+from strawberry_jam.utils import pascal_case, snake_case
+from django.db.models import Field
 
 
 TEMPLATE = """

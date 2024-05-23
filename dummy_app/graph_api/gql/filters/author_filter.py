@@ -1,45 +1,17 @@
 
-
-# TODO: Strawberry-Jam: Remove unused imports
-# TODO: Strawberry-Jam: Check the generated schema 
-
-
-import strawberry
+# TODO: Strawberry-Jam: review this file
 import strawberry_django
+from strawberry import auto
 from typing import TYPE_CHECKING, List, Annotated
 
+from library.models import Author
 
+@strawberry_django.filter(Author, lookups=True)
+class ('AuthorFilter',):
+    id: auto
+    id: auto
 
-if TYPE_CHECKING:
-None
+    name: auto
 
-
-@strawberry_django.filter(Author, lookup=True)
-class AuthorFilter:
-
-
-
-# TODO: Strawberry-Jam: Remove unused imports
-# TODO: Strawberry-Jam: Check the generated schema 
-
-
-import strawberry
-import strawberry_django
-from typing import TYPE_CHECKING, List, Annotated
-
-
-
-@strawberry_django.order(Author)
-class AuthorOrder:
-
-
-    id: strawberry.auto
-
-
-    name: strawberry.auto
-
-
-    books_connection: List[Annotated["Author", strawberry.lazy(
-        "graph_api.gql.author_node"
-    )]]
+    authors_connection: auto
 

@@ -1,6 +1,6 @@
 from strawberry_jam.jam import StrawberryJamTemplate
 from functools import cache
-from strawberry_jam.codegen.utils import pascal_case, snake_case
+from strawberry_jam.utils import pascal_case, snake_case
 
 
 TEMPLATE = """
@@ -17,12 +17,12 @@ from {schema_app_label}.{api_folder_name}.{module_dir_name}.forms.{update_form_m
 @strawberry.type(name="Mutation")
 class {module_class_name}:
     @strawberry_django.mutation(handle_django_errors=True)
-    def create_{field_name}(self, data: {input_class_name}):
+    def create_{field_name}(self, data: {create_input_class_name}):
         form = {create_form_class_name}(data)
         return cast({node_class_name}, form.save())
 
     @strawberry_django.mutation(handle_django_errors=True)
-    def create_{field_name}(self, data: {input_class_name}):
+    def create_{field_name}(self, data: {update_input_class_name}):
         form = {update_form_class_name}(data)
         return cast({node_class_name}, form.save())
 

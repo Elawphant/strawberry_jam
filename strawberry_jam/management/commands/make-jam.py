@@ -1,7 +1,6 @@
 from typing import Any
 from django.core.management.base import BaseCommand, CommandParser
-from strawberry_jam.chunks.django_relay.workflow import process, process_schema
-from strawberry_jam.codegen.utils import validate_model
+from strawberry_jam.utils import validate_model, process_template, finalize_schema
 
 class Command(BaseCommand):
 
@@ -17,13 +16,13 @@ class Command(BaseCommand):
             dest="schema_app_label",
             help="The app name to place the generated api modules in"
             )
-        # TODO add the ability to make other workflows and use them for codegen
-        # parser.add_argument(
-        #     "--flavor", "-fl", "--workflow", "-wfl",
-        #     type=str,
-        #     dest="schema_app_label",
-        #     help="The schema workflow to select for schema generation. "
-        #     )
+        parser.add_argument(
+            "--flavor", "-fl", "--workflow", "-wfl",
+            type=str,
+            dest="flavor",
+            default="django_relay",
+            help="The schema workflow to select for schema generation. "
+            )
         
         parser.add_argument(
             "--package-name", "-pn",
@@ -49,17 +48,14 @@ class Command(BaseCommand):
                 "api_folder_name": api_folder_name,
                 "overwrite": options.get("overwrite"),
         }
-        print(options.get("models"))
         for model in options.get("models"):
-            [model_app_label, model_name_pascal_case] = model.split(".")
+            model_app_label, model_name = model.split(".")
             opts = {
                 "model_app_label": model_app_label,
-                "model_name_pascal_case": model_name_pascal_case,
+                "model_name": model_name,
                 **_options
             }
             validate_model(opts)
-            process(opts)
-        
             # collect all schema
-        process_schema(schema_app_label, api_folder_name)
-
+            process_template(opts, options.get("flavor"))
+        finalize_schema(options, options.get("flavor"))

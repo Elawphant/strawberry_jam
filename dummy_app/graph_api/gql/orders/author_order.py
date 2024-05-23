@@ -1,11 +1,17 @@
 
-    id: auto
+# TODO: Strawberry-Jam: review this file
+import strawberry_django
+from strawberry import auto
+from typing import TYPE_CHECKING, List, Annotated
 
+from library.models import Author
+
+@strawberry_django.order(Author)
+class ('AuthorOrder',):
+    id: auto
+    id: auto
 
     name: auto
 
-
-    books_connection: List[Annotated["Author", strawberry.lazy(
-        "graph_api.gql.author_node"
-    )]]
+    authors_connection: auto
 

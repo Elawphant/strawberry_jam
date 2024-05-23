@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from strawberry_jam.codegen.utils import snake_case
+from strawberry_jam.utils import snake_case
 import re
 from typing import Dict, Any
 

@@ -7,4 +7,3 @@ from graph_api.gql.schema import schema
 urlpatterns = [
     path('graphql', GraphQLView.as_view(schema=schema)),
 ]
-

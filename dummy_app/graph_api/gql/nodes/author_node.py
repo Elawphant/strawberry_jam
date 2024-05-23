@@ -1,27 +1,27 @@
 
-
-# TODO: Strawberry-Jam: Remove unused imports
-# TODO: Strawberry-Jam: Check the generated schema 
-
-
+# TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
 from typing import TYPE_CHECKING, List, Annotated
-
-
-
-if TYPE_CHECKING:
-None
-
-
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
 
+from library.models import Author
+from graph_api.gql.filters.author_filter import ('Author',)('Filter',)
+from graph_api.gql.orders.author_order import ('Author',)('Order',)
 
-@strawberry_django.type(Author, filters=AuthorFilter)
-class AuthorNode(strawberry.relay.Node):
-    code: relay.NodeID[int]
+
+if TYPE_CHECKING:
+
+    from graph_api.gql.nodes.author_node import ('Author',)('Node',)
+
+
+
+
+@strawberry_django.type(Author, filters=('Author',)('Filter',), order=('Author',)('Order',))
+class ('AuthorNode',)(strawberry.relay.Node):
+    id: strawberry.relay.NodeID[int]
 
 
     id: strawberry.auto = strawberry_django.field(
@@ -34,9 +34,11 @@ class AuthorNode(strawberry.relay.Node):
     )
 
 
-    books_connection: List[Annotated["AuthorNode", strawberry.lazy(
-        "graph_api.gql.author_node"
+    authors_connection: List[Annotated["('Author',)('Node',)", strawberry.lazy(
+        "graph_api.gql.nodes.author_node"
     )]] = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
+
+
 

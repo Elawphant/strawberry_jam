@@ -1,6 +1,6 @@
 from strawberry_jam.jam import StrawberryJamTemplate
 from functools import cache
-from strawberry_jam.codegen.utils import pascal_case, snake_case
+from strawberry_jam.utils import pascal_case, snake_case
 
 TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
@@ -32,3 +32,4 @@ class Template(StrawberryJamTemplate):
     @cache
     def field_name(self):
         return snake_case(self.model._meta.verbose_name_plural, "connection")
+    

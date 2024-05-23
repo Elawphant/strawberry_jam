@@ -1,6 +1,6 @@
 from strawberry_jam.jam import StrawberryJamTemplate
 from functools import cache
-from strawberry_jam.codegen.utils import pascal_case, snake_case
+from strawberry_jam.utils import pascal_case, snake_case
 from django.db.models import Field, OneToOneField, ManyToManyField, ForeignKey
 
 TYPE_CHECKING_IMPORTS = """
@@ -46,12 +46,13 @@ from strawberry_django.permissions import (
 )
 
 from {model_app_label}.models import {model_name}
-from {schema_app_label}.{api_folder_name}.filters.{filter_module_name} import {fileter_name_pascal_case}
+from {schema_app_label}.{api_folder_name}.filters.{filter_module_name} import {fileter_class_name}
+from {schema_app_label}.{api_folder_name}.orders.{order_module_name} import {order_class_name}
 
 {typechecking_imports}
 
 
-@strawberry_django.type({model_name}, filters={filter_name_pascal_case}, order={order_name_pascal_case})
+@strawberry_django.type({model_name}, filters={fileter_class_name}, order={order_class_name})
 class {module_class_name}(strawberry.relay.Node):
     id: strawberry.relay.NodeID[int]
 
@@ -65,13 +66,22 @@ class Template(StrawberryJamTemplate):
 
     @property
     @cache
-    def filter_name_pascal_case(self):
+    def fileter_class_name(self):
         return pascal_case(self.model_name, "filter")
     
     @property
     @cache
     def filter_module_name(self):
         return snake_case(self.model_name, "filter")
+    @property
+    @cache
+    def order_class_name(self):
+        return pascal_case(self.model_name, "order")
+    
+    @property
+    @cache
+    def order_module_name(self):
+        return snake_case(self.model_name, "order")
     
 
     @property
@@ -81,14 +91,14 @@ class Template(StrawberryJamTemplate):
         for field in self.model._meta.get_fields():
             if field.is_relation:
                 field: OneToOneField | ManyToManyField | ForeignKey = field
-                imports.append(API_DEPENDANCY_IMPORT.format({
+                imports.append(API_DEPENDANCY_IMPORT.format(**{
                     "schema_app_label": self.schema_app_label,
                     "api_folder_name": self.api_folder_name,
                     "module_dir_name": self.module_dir_name,
                     "field_node_module_name": snake_case(field.model._meta.model_name, "node"),
                     "field_node_name": pascal_case(field.model._meta.model_name, "node"),
                 }))
-        if imports.count() > 0:
+        if imports.__len__() > 0:
             return TYPE_CHECKING_IMPORTS.format(type_checking_imports="\n".join(imports))
         return "\n"
 
@@ -104,7 +114,7 @@ class Template(StrawberryJamTemplate):
                 field: OneToOneField | ManyToManyField | ForeignKey = field
                 if field.many_to_many or field.one_to_many:
                     field_name = snake_case(field.model._meta.verbose_name_plural, "connection")
-                    fields_chunks.append(REL_TO_MANY.format({
+                    fields_chunks.append(REL_TO_MANY.format(**{
                         "field_name": field_name,
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
@@ -113,7 +123,7 @@ class Template(StrawberryJamTemplate):
                         "field_node_name": pascal_case(field.model._meta.model_name, "node"),
                     }))
                 else: 
-                    fields_chunks.append(REL_TO_ONE.format({
+                    fields_chunks.append(REL_TO_ONE.format(**{
                         "field_name": field.name,
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
@@ -122,7 +132,7 @@ class Template(StrawberryJamTemplate):
                         "field_node_name": pascal_case(field.model._meta.model_name, "node"),
                     }))
             else:
-                fields_chunks.append(FIELD.format({
+                fields_chunks.append(FIELD.format(**{
                     "field_name": field.name
                 }))
         

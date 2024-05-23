@@ -12,7 +12,7 @@ from library.models import Shelf
 
 if TYPE_CHECKING:
 
-    from graph_api.gql.inputs.shelf_update_input import ShelfUpdateInput
+    from graph_api.gql.inputs.book_update_input import BookUpdateInput
 
 
 
@@ -21,11 +21,11 @@ if TYPE_CHECKING:
 class ShelfUpdateInput:
     id: auto
 
-    add_to_shelfs_connection: List[Annotated["ShelfUpdateInput", strawberry.lazy(
-        "graph_api.gql.inputs.shelf_update_input"
+    add_to_books_connection: List[Annotated["BookUpdateInput", strawberry.lazy(
+        "graph_api.gql.inputs.book_update_input"
     )]] = strawberry.field(default_factory=list)
-    remove_from_shelfs_connection: List[Annotated["ShelfUpdateInput", strawberry.lazy(
-        "graph_api.gql.inputs.shelf_update_input"
+    remove_from_books_connection: List[Annotated["BookUpdateInput", strawberry.lazy(
+        "graph_api.gql.inputs.book_update_input"
     )]] = strawberry.field(default_factory=list)
 
     id: strawberry.auto = strawberry_django.field(

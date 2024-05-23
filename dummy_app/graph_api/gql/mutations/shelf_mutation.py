@@ -13,16 +13,16 @@ from graph_api.gql.forms.shelf_update_form import ShelfUpdateForm
 @strawberry.type(name="Mutation")
 class ShelfMutation:
     @strawberry_django.mutation(handle_django_errors=True)
-    def create_Shelf(self, data: ShelfCreateInput):
+    def create_shelf(self, data: ShelfCreateInput) -> ShelfNode:
         form = ShelfCreateForm(data)
         return cast(ShelfNode, form.save())
 
     @strawberry_django.mutation(handle_django_errors=True)
-    def create_Shelf(self, data: ShelfUpdateInput):
+    def create_shelf(self, data: ShelfUpdateInput) -> ShelfNode:
         form = ShelfUpdateForm(data)
         return cast(ShelfNode, form.save())
 
-    delete_Shelf: ShelfNode = strawberry_django.mutations.delete(
+    delete_shelf: ShelfNode = strawberry_django.mutations.delete(
         strawberry_django.NodeInput,
         handle_django_errors=True
     )

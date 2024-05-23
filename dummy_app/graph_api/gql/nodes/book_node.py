@@ -14,31 +14,29 @@ from graph_api.gql.orders.book_order import BookOrder
 
 if TYPE_CHECKING:
 
-    from graph_api.gql.nodes.book_node import BookNode
+    from graph_api.gql.nodes.author_node import AuthorNode
 
 
-    from graph_api.gql.nodes.book_node import BookNode
+    from graph_api.gql.nodes.book_info_node import BookInfoNode
 
 
-    from graph_api.gql.nodes.book_node import BookNode
+    from graph_api.gql.nodes.shelf_node import ShelfNode
 
 
 
 
 @strawberry_django.type(Book, filters=BookFilter, order=BookOrder)
 class BookNode(strawberry.relay.Node):
-    id: strawberry.relay.NodeID[int]
 
-
-    books_connection: List[Annotated["BookNode", strawberry.lazy(
-        "graph_api.gql.nodes.book_node"
+    authors_connection: List[Annotated["AuthorNode", strawberry.lazy(
+        "graph_api.gql.nodes.author_node"
     )]] = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
 
 
-    bookinfo: Annotated["BookNode", strawberry.lazy(
-        "graph_api.gql.nodes.book_node"
+    bookinfo: Annotated["BookInfoNode", strawberry.lazy(
+        "graph_api.gql.nodes.book_info_node"
     )] = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
@@ -49,8 +47,8 @@ class BookNode(strawberry.relay.Node):
     )
 
 
-    shelf: Annotated["BookNode", strawberry.lazy(
-        "graph_api.gql.nodes.book_node"
+    shelf: Annotated["ShelfNode", strawberry.lazy(
+        "graph_api.gql.nodes.shelf_node"
     )] = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )

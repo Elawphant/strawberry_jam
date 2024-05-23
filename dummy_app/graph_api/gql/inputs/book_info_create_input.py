@@ -13,7 +13,7 @@ from library.models import BookInfo
 
 if TYPE_CHECKING:
 
-    from graph_api.gql.inputs.bookinfo_create_input import BookinfoCreateInput
+    from graph_api.gql.inputs.book_create_input import BookCreateInput
 
 
 
@@ -26,8 +26,8 @@ class BookInfoCreateInput:
         extensions=[IsAuthenticated()],
     )
 
-    book: Annotated["BookinfoCreateInput", strawberry.lazy(
-        "graph_api.gql.inputs.bookinfo_create_input"
+    book: Annotated["BookCreateInput", strawberry.lazy(
+        "graph_api.gql.inputs.book_create_input"
     )]
 
     title: strawberry.auto = strawberry_django.field(

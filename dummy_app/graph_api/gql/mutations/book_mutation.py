@@ -13,16 +13,16 @@ from graph_api.gql.forms.book_update_form import BookUpdateForm
 @strawberry.type(name="Mutation")
 class BookMutation:
     @strawberry_django.mutation(handle_django_errors=True)
-    def create_Book(self, data: BookCreateInput):
+    def create_book(self, data: BookCreateInput) -> BookNode:
         form = BookCreateForm(data)
         return cast(BookNode, form.save())
 
     @strawberry_django.mutation(handle_django_errors=True)
-    def create_Book(self, data: BookUpdateInput):
+    def create_book(self, data: BookUpdateInput) -> BookNode:
         form = BookUpdateForm(data)
         return cast(BookNode, form.save())
 
-    delete_Book: BookNode = strawberry_django.mutations.delete(
+    delete_book: BookNode = strawberry_django.mutations.delete(
         strawberry_django.NodeInput,
         handle_django_errors=True
     )

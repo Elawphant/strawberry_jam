@@ -1,16 +1,27 @@
 
 # TODO: Strawberry-Jam: review this file
 import strawberry_django
-from strawberry import auto
+import strawberry
+from strawberry import auto, relay
+from typing import TYPE_CHECKING, List, Annotated
 
 from library.models import BookInfo
 
+
+if TYPE_CHECKING:
+
+    from graph_api.gql.orders.book_order import BookOrder
+
+
+
 @strawberry_django.order(BookInfo)
 class BookInfoOrder:
-    id: auto
+
     id: auto
 
-    book: auto
+    book: List[Annotated["BookOrder", strawberry.lazy(
+        "graph_api.gql.orders.book_order"
+    )]] | None
 
     title: auto
 

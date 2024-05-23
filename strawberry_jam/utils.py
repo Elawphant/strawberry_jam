@@ -114,9 +114,11 @@ def get_modules_and_classes(dir: Path) -> dict[str, str]:
 
     for file in dir.glob('*.py'):
         module_name = file.stem
+        module = import_module(f"{".".join(str(dir).split("/"))}.{module_name}")
+
         # Import the module
         try:
-            module = import_module(f"{dir.name}.{module_name}")
+            module = import_module(f"{".".join(str(dir).split("/"))}.{module_name}")
             if module:
                 type_name = get_query_and_mutation_types(module)
                 if type_name:

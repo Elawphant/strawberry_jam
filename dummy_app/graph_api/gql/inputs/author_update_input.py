@@ -12,7 +12,7 @@ from library.models import Author
 
 if TYPE_CHECKING:
 
-    from graph_api.gql.inputs.author_update_input import AuthorUpdateInput
+    from graph_api.gql.inputs.book_update_input import BookUpdateInput
 
 
 
@@ -29,11 +29,11 @@ class AuthorUpdateInput:
         extensions=[IsAuthenticated()],
     )
 
-    add_to_authors_connection: List[Annotated["AuthorUpdateInput", strawberry.lazy(
-        "graph_api.gql.inputs.author_update_input"
+    add_to_books_connection: List[Annotated["BookUpdateInput", strawberry.lazy(
+        "graph_api.gql.inputs.book_update_input"
     )]] = strawberry.field(default_factory=list)
-    remove_from_authors_connection: List[Annotated["AuthorUpdateInput", strawberry.lazy(
-        "graph_api.gql.inputs.author_update_input"
+    remove_from_books_connection: List[Annotated["BookUpdateInput", strawberry.lazy(
+        "graph_api.gql.inputs.book_update_input"
     )]] = strawberry.field(default_factory=list)
 
 

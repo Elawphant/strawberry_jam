@@ -14,18 +14,16 @@ from graph_api.gql.orders.shelf_order import ShelfOrder
 
 if TYPE_CHECKING:
 
-    from graph_api.gql.nodes.shelf_node import ShelfNode
+    from graph_api.gql.nodes.book_node import BookNode
 
 
 
 
 @strawberry_django.type(Shelf, filters=ShelfFilter, order=ShelfOrder)
 class ShelfNode(strawberry.relay.Node):
-    id: strawberry.relay.NodeID[int]
 
-
-    shelfs_connection: List[Annotated["ShelfNode", strawberry.lazy(
-        "graph_api.gql.nodes.shelf_node"
+    books_connection: List[Annotated["BookNode", strawberry.lazy(
+        "graph_api.gql.nodes.book_node"
     )]] = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )

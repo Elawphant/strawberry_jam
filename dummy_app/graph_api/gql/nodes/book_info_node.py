@@ -14,23 +14,21 @@ from graph_api.gql.orders.book_info_order import BookInfoOrder
 
 if TYPE_CHECKING:
 
-    from graph_api.gql.nodes.bookinfo_node import BookinfoNode
+    from graph_api.gql.nodes.book_node import BookNode
 
 
 
 
 @strawberry_django.type(BookInfo, filters=BookInfoFilter, order=BookInfoOrder)
 class BookInfoNode(strawberry.relay.Node):
-    id: strawberry.relay.NodeID[int]
-
 
     id: strawberry.auto = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
 
 
-    book: Annotated["BookinfoNode", strawberry.lazy(
-        "graph_api.gql.nodes.bookinfo_node"
+    book: Annotated["BookNode", strawberry.lazy(
+        "graph_api.gql.nodes.book_node"
     )] = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )

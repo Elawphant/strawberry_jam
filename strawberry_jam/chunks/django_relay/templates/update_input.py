@@ -71,8 +71,8 @@ class Template(StrawberryJamTemplate):
                     "schema_app_label": self.schema_app_label,
                     "api_folder_name": self.api_folder_name,
                     "module_dir_name": self.module_dir_name,
-                    "field_input_module_name": snake_case(field.model._meta.model_name, "update_input"),
-                    "field_input_name": pascal_case(field.model._meta.model_name, "update_input"),
+                    "field_input_module_name": snake_case(field.remote_field.model.__name__, "update_input"),
+                    "field_input_name": pascal_case(field.remote_field.model.__name__, "update_input"),
                 }))
         if imports.__len__() > 0:
             return TYPE_CHECKING_IMPORTS.format(type_checking_imports="".join(imports))
@@ -89,14 +89,13 @@ class Template(StrawberryJamTemplate):
             if field.is_relation:
                 field: OneToOneField | ManyToManyField | ForeignKey = field
                 if field.many_to_many or field.one_to_many:
-                    field_name = snake_case(field.model._meta.verbose_name_plural, "connection")
                     fields_chunks.append(REL_TO_MANY.format(**{
-                        "field_name": field_name,
+                        "field_name": snake_case(field.name, "connection"),
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
                         "module_dir_name": self.module_dir_name,
-                        "field_input_module_name": snake_case(field.model._meta.model_name, "update_input"),
-                        "field_input_name": pascal_case(field.model._meta.model_name, "update_input"),
+                        "field_input_module_name": snake_case(field.remote_field.model.__name__, "update_input"),
+                        "field_input_name": pascal_case(field.remote_field.model.__name__, "update_input"),
                     }))
                 else:
                     fields_chunks.append(REL_TO_ONE.format(**{
@@ -104,8 +103,8 @@ class Template(StrawberryJamTemplate):
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
                         "module_dir_name": self.module_dir_name,
-                        "field_input_module_name": snake_case(field.model._meta.model_name, "update_input"),
-                        "field_input_name": pascal_case(field.model._meta.model_name, "update_input"),
+                        "field_input_module_name": snake_case(field.remote_field.model.__name__, "update_input"),
+                        "field_input_name": pascal_case(field.remote_field.model.__name__, "update_input"),
                     }))
             else:
                 fields_chunks.append(FIELD.format(**{

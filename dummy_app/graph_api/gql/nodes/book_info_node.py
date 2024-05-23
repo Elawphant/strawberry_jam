@@ -1,27 +1,27 @@
 
-
-# TODO: Strawberry-Jam: Remove unused imports
-# TODO: Strawberry-Jam: Check the generated schema 
-
-
+# TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
 from typing import TYPE_CHECKING, List, Annotated
-
-
-
-if TYPE_CHECKING:
-None
-
-
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
 
+from library.models import BookInfo
+from graph_api.gql.filters.book_info_filter import BookInfoFilter
+from graph_api.gql.orders.book_info_order import BookInfoOrder
 
-@strawberry_django.type(BookInfo, filters=BookInfoFilter)
+
+if TYPE_CHECKING:
+
+    from graph_api.gql.nodes.bookinfo_node import BookinfoNode
+
+
+
+
+@strawberry_django.type(BookInfo, filters=BookInfoFilter, order=BookInfoOrder)
 class BookInfoNode(strawberry.relay.Node):
-    code: relay.NodeID[int]
+    id: strawberry.relay.NodeID[int]
 
 
     id: strawberry.auto = strawberry_django.field(
@@ -29,8 +29,8 @@ class BookInfoNode(strawberry.relay.Node):
     )
 
 
-    book: Annotated["Book", strawberry.lazy(
-        "graph_api.gql.book"
+    book: Annotated["BookinfoNode", strawberry.lazy(
+        "graph_api.gql.nodes.bookinfo_node"
     )] = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
@@ -59,4 +59,6 @@ class BookInfoNode(strawberry.relay.Node):
     publication_date: strawberry.auto = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
+
+
 

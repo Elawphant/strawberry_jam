@@ -128,7 +128,7 @@ class Template(StrawberryJamTemplate):
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
                         "module_dir_name": self.module_dir_name,
-                        "field_node_module_dir_name": snake_case(field.model._meta.model_name, "node"),
+                        "field_node_module_name": snake_case(field.model._meta.model_name, "node"),
                         "field_node_name": pascal_case(field.model._meta.model_name, "node"),
                     }))
             else:

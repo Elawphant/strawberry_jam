@@ -8,7 +8,6 @@ TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
 import strawberry_django
 from strawberry import auto
-from typing import TYPE_CHECKING, List, Annotated
 
 from {model_app_label}.models import {model_name}
 

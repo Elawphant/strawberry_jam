@@ -7,12 +7,13 @@ TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
+from typing import cast
 
-from {schema_app_label}.{api_folder_name}.{module_dir_name}.nodes.{node_module_name} import {node_class_name}
-from {schema_app_label}.{api_folder_name}.{module_dir_name}.inputs.{create_input_module_name} import {create_input_class_name}
-from {schema_app_label}.{api_folder_name}.{module_dir_name}.inputs.{update_input_module_name} import {update_input_class_name}
-from {schema_app_label}.{api_folder_name}.{module_dir_name}.forms.{create_form_module_name} import {create_form_class_name}
-from {schema_app_label}.{api_folder_name}.{module_dir_name}.forms.{update_form_module_name} import {update_form_class_name}
+from {schema_app_label}.{api_folder_name}.nodes.{node_module_name} import {node_class_name}
+from {schema_app_label}.{api_folder_name}.inputs.{create_input_module_name} import {create_input_class_name}
+from {schema_app_label}.{api_folder_name}.inputs.{update_input_module_name} import {update_input_class_name}
+from {schema_app_label}.{api_folder_name}.forms.{create_form_module_name} import {create_form_class_name}
+from {schema_app_label}.{api_folder_name}.forms.{update_form_module_name} import {update_form_class_name}
 
 @strawberry.type(name="Mutation")
 class {module_class_name}:
@@ -64,7 +65,7 @@ class Template(StrawberryJamTemplate):
     @property
     @cache
     def create_form_module_name(self):
-        return snake_case(self.model_name, "update_form")
+        return snake_case(self.model_name, "create_form")
 
     @property
     @cache

@@ -35,15 +35,15 @@ def pascal_case(*chunks: list[str]) -> str:
     Returns a pascal case string made from the supplied arguments
     """
     assert chunks.__len__() > 0, f"At least one string argument must be passed to 'pascal_case'"
-    assert all(isinstance(ch, str) for ch in chunks) > 0, f"All arguments passed to 'pascal_case' must be string"
+    chunks = [str(ch) for ch in chunks]
     pascal_case_chunks = []
     for ch in chunks:
-        ch = re.sub(r"(_|-)+", " ", snake_case(str(ch))), 
-        words = str(ch).split(" ")
+        ch = re.sub(r"(_|-)+", " ", snake_case(ch))
+        words = ch.split(" ")
         pascal_case_chunks = [*pascal_case_chunks, *[word.title() for word in words]]
     return "".join(pascal_case_chunks)
 
-def snake_case(*chunks:list[str]) -> str:
+def snake_case(*chunks: list[str]) -> str:
     """
     Returns a snake case string made from the supplied arguments
     """

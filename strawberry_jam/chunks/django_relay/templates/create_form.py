@@ -20,5 +20,5 @@ class Template(StrawberryJamTemplate):
     @property
     @cache
     def fields(self) -> str:
-        return ", ".join([field.name for field in self.model._meta.get_fields() if field.name != "id"])
+        return ", ".join([f"'{field.name}'" for field in self.model._meta.get_fields() if field.name != "id"])
 

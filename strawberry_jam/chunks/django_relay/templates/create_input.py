@@ -38,6 +38,7 @@ TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
+from strawberry import auto
 from typing import TYPE_CHECKING, List, Annotated
 from strawberry_django.permissions import (
     IsAuthenticated,
@@ -75,8 +76,8 @@ class Template(StrawberryJamTemplate):
                     "field_input_name": pascal_case(field.model._meta.model_name, "create_input"),
                 }))
         if imports.__len__() > 0:
-            return TYPE_CHECKING_IMPORTS.format(type_checking_imports="\n".join(imports))
-        return "\n"
+            return TYPE_CHECKING_IMPORTS.format(type_checking_imports="".join(imports))
+        return ""
 
     
     @property
@@ -112,4 +113,4 @@ class Template(StrawberryJamTemplate):
                     "field_name": field.name
                 }))
         
-        return "\n".join(fields_chunks)
+        return "".join(fields_chunks)

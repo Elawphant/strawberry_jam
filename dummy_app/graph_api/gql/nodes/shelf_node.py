@@ -1,31 +1,31 @@
 
-
-# TODO: Strawberry-Jam: Remove unused imports
-# TODO: Strawberry-Jam: Check the generated schema 
-
-
+# TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
 from typing import TYPE_CHECKING, List, Annotated
-
-
-
-if TYPE_CHECKING:
-None
-
-
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
 
+from library.models import Shelf
+from graph_api.gql.filters.shelf_filter import ShelfFilter
+from graph_api.gql.orders.shelf_order import ShelfOrder
 
-@strawberry_django.type(Shelf, filters=ShelfFilter)
+
+if TYPE_CHECKING:
+
+    from graph_api.gql.nodes.shelf_node import ShelfNode
+
+
+
+
+@strawberry_django.type(Shelf, filters=ShelfFilter, order=ShelfOrder)
 class ShelfNode(strawberry.relay.Node):
-    code: relay.NodeID[int]
+    id: strawberry.relay.NodeID[int]
 
 
-    books_connection: List[Annotated["ShelfNode", strawberry.lazy(
-        "graph_api.gql.shelf_node"
+    shelfs_connection: List[Annotated["ShelfNode", strawberry.lazy(
+        "graph_api.gql.nodes.shelf_node"
     )]] = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
@@ -39,4 +39,6 @@ class ShelfNode(strawberry.relay.Node):
     number: strawberry.auto = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
+
+
 

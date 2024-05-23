@@ -1,18 +1,18 @@
 
-    authors_connection: List[Annotated["Book", strawberry.lazy(
-        "graph_api.gql.book_node"
-    )]]
+# TODO: Strawberry-Jam: review this file
+import strawberry_django
+from strawberry import auto
 
+from library.models import Book
 
-    bookinfo: Annotated["Book", strawberry.lazy(
-        "graph_api.gql.book_node"
-    )]
+@strawberry_django.order(Book)
+class BookOrder:
+    id: auto
+    books_connection: auto
 
+    bookinfo: auto
 
     id: auto
 
-
-    shelf: Annotated["Book", strawberry.lazy(
-        "graph_api.gql.book_node"
-    )]
+    books_connection: auto
 

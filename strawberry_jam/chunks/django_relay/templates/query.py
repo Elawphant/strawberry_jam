@@ -5,8 +5,8 @@ from strawberry_jam.utils import pascal_case, snake_case
 TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
 import strawberry
-
-from {schema_app_label}.{api_folder_name}.{module_dir_name}.nodes.{node_module_name} import {node_class_name}
+import strawberry_django
+from {schema_app_label}.{api_folder_name}.nodes.{node_module_name} import {node_class_name}
 
 @strawberry.type(name="Query")
 class {module_class_name}:

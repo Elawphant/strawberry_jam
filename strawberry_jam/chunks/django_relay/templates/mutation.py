@@ -18,12 +18,12 @@ from {schema_app_label}.{api_folder_name}.forms.{update_form_module_name} import
 @strawberry.type(name="Mutation")
 class {module_class_name}:
     @strawberry_django.mutation(handle_django_errors=True)
-    def create_{field_name}(self, data: {create_input_class_name}) -> {node_class_name}:
-        form = {create_form_class_name}(data)
+    def create_{field_name}(self, info, data: {create_input_class_name}) -> {node_class_name}:
+        form = {create_form_class_name}(data, info)
         return cast({node_class_name}, form.save())
 
     @strawberry_django.mutation(handle_django_errors=True)
-    def create_{field_name}(self, data: {update_input_class_name}) -> {node_class_name}:
+    def create_{field_name}(self, info, data: {update_input_class_name}) -> {node_class_name}:
         form = {update_form_class_name}(data)
         return cast({node_class_name}, form.save())
 

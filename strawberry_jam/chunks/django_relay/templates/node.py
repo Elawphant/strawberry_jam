@@ -23,7 +23,7 @@ FIELD = """
 REL_TO_ONE = """
     {field_name}: Annotated["{field_node_name}", strawberry.lazy(
         "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_node_module_name}"
-    )] = strawberry_django.field(
+    )] = strawberry_django.node(
         extensions=[IsAuthenticated()],
     )
 """
@@ -31,7 +31,7 @@ REL_TO_ONE = """
 REL_TO_MANY = """
     {field_name}: List[Annotated["{field_node_name}", strawberry.lazy(
         "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_node_module_name}"
-    )]] = strawberry_django.field(
+    )]] = strawberry_django.connection(
         extensions=[IsAuthenticated()],
     )
 """
@@ -44,18 +44,22 @@ from typing import TYPE_CHECKING, List, Annotated
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
-
+from strawberry_jam.node import Node
 from {model_app_label}.models import {model_name}
 from {schema_app_label}.{api_folder_name}.filters.{filter_module_name} import {fileter_class_name}
 from {schema_app_label}.{api_folder_name}.orders.{order_module_name} import {order_class_name}
+from {schema_app_label}.{api_folder_name}.query_set_managers.{queryset_manager_module_name} import {queryset_manager_name}
+
 
 {typechecking_imports}
 
 
 @strawberry_django.type({model_name}, filters={fileter_class_name}, order={order_class_name})
-class {module_class_name}(strawberry.relay.Node):
+class {module_class_name}(Node):
 {fields}
 
+    class Meta:
+        queryset_manager = {queryset_manager_name}
 
 """
 
@@ -134,3 +138,14 @@ class Template(StrawberryJamTemplate):
                 }))
         
         return "\n".join(fields_chunks)
+    
+
+    @property
+    @cache
+    def queryset_manager_name(self):
+        return pascal_case(self.model_name, "query_set_manager")
+    
+    @property
+    @cache
+    def queryset_manager_module_name(self):
+        return snake_case(self.model_name, "query_set_manager")

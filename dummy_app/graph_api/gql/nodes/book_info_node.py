@@ -6,10 +6,12 @@ from typing import TYPE_CHECKING, List, Annotated
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
-
+from strawberry_jam.node import Node
 from library.models import BookInfo
 from graph_api.gql.filters.book_info_filter import BookInfoFilter
 from graph_api.gql.orders.book_info_order import BookInfoOrder
+from graph_api.gql.query_set_managers.book_info_query_set_manager import BookInfoQuerySetManager
+
 
 
 if TYPE_CHECKING:
@@ -20,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @strawberry_django.type(BookInfo, filters=BookInfoFilter, order=BookInfoOrder)
-class BookInfoNode(strawberry.relay.Node):
+class BookInfoNode(Node):
 
     id: strawberry.auto = strawberry_django.field(
         extensions=[IsAuthenticated()],
@@ -29,7 +31,7 @@ class BookInfoNode(strawberry.relay.Node):
 
     book: Annotated["BookNode", strawberry.lazy(
         "graph_api.gql.nodes.book_node"
-    )] = strawberry_django.field(
+    )] = strawberry_django.node(
         extensions=[IsAuthenticated()],
     )
 
@@ -59,4 +61,6 @@ class BookInfoNode(strawberry.relay.Node):
     )
 
 
+    class Meta:
+        queryset_manager = BookInfoQuerySetManager
 

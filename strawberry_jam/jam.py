@@ -25,6 +25,7 @@ DEFAULT_MODULE_DIR_NAMES = {
     "create_input": "inputs",
     "update_input": "inputs",
     "query": "queries",
+    "query_set_manager": "query_set_managers",
     "mutation": "mutations"
 }
 

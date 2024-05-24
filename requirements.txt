@@ -1,2 +1,3 @@
 strawberry-graphql-django
 django
+tqdm

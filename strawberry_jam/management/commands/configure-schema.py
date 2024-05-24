@@ -1,6 +1,7 @@
 from typing import Any
 from django.core.management.base import BaseCommand, CommandParser
 from strawberry_jam.utils import validate_model, process_template, finalize_schema
+from tqdm import tqdm
 
 class Command(BaseCommand):
 
@@ -48,7 +49,10 @@ class Command(BaseCommand):
                 "api_folder_name": api_folder_name,
                 "overwrite": options.get("overwrite"),
         }
-        for model in options.get("models"):
+        models = options.get("models")
+
+        # Use tqdm to show progress for each model
+        for model in tqdm(models, colour="blue"):
             model_app_label, model_name = model.split(".")
             opts = {
                 "model_app_label": model_app_label,
@@ -56,6 +60,6 @@ class Command(BaseCommand):
                 **_options
             }
             validate_model(opts)
-            # collect all schema
             process_template(opts, options.get("flavor"))
+
         finalize_schema(options, options.get("flavor"))

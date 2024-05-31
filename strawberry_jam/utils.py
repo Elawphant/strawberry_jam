@@ -1,8 +1,11 @@
 from pathlib import Path
-import re, inspect
+import re
+import inspect
 from django.apps import apps
 from django.core.management.base import CommandError
 from importlib import import_module
+from django.conf import settings
+from strawberry_jam import conventions
 
 
 def extract_docstring_variables(docstring):
@@ -12,16 +15,19 @@ def extract_docstring_variables(docstring):
     matches = re.findall(pattern, docstring)
     return matches
 
+
 def get_attrs(module):
     # Get all attributes of the module
     attributes = dir(module)
     # Filter out built-in attributes
-    variables = {attr: getattr(module, attr) for attr in attributes if not attr.startswith('__')}
+    variables = {attr: getattr(module, attr)
+                 for attr in attributes if not attr.startswith('__')}
     return variables
 
 
 def create_directory(dir_path: Path):
     dir_path.mkdir(parents=True, exist_ok=True)  # Using pathlib
+
 
 def create_module(filename: str, folder_path: Path, content: str, overwrite=False):
     file_path = Path(folder_path / f"{filename}.py")
@@ -40,8 +46,10 @@ def pascal_case(*chunks: list[str]) -> str:
     for ch in chunks:
         ch = re.sub(r"(_|-)+", " ", snake_case(ch))
         words = ch.split(" ")
-        pascal_case_chunks = [*pascal_case_chunks, *[word.title() for word in words]]
+        pascal_case_chunks = [*pascal_case_chunks,
+                              *[word.title() for word in words]]
     return "".join(pascal_case_chunks)
+
 
 def snake_case(*chunks: list[str]) -> str:
     """
@@ -59,15 +67,15 @@ def snake_case(*chunks: list[str]) -> str:
     return "_".join(snake_cased_chunks)
 
 
-def name_class(typename: str, prefix: str = "", suffix:str = ""):
+def name_class(typename: str, prefix: str = "", suffix: str = ""):
     return f"{pascal_case(prefix)}{pascal_case(typename)}{pascal_case(suffix)}"
 
 
-def name_module(typename: str, prefix: str = "", suffix:str = ""):
+def name_module(typename: str, prefix: str = "", suffix: str = ""):
     return snake_case(f"{str(prefix) + '_' if prefix else ''}{str(typename)}_{str(suffix)}")
 
 
-def append_chunk(content: str, chunk:str, variables: dict, indentation_level: int = 0):
+def append_chunk(content: str, chunk: str, variables: dict, indentation_level: int = 0):
     attrs = extract_docstring_variables(chunk)
     chunk_kwargs = {attr: variables.get(attr) for attr in attrs}
     indentation = '    ' * 4 * indentation_level if indentation_level > 0 else ''
@@ -78,7 +86,8 @@ def append_chunk(content: str, chunk:str, variables: dict, indentation_level: in
 def format(text, variables: dict):
     def replace_with_value(match):
         var_name = match.group(1)
-        return str(variables.get(var_name, f"{{{var_name}}}"))  # Return default if unmatched
+        # Return default if unmatched
+        return str(variables.get(var_name, f"{{{var_name}}}"))
 
     return re.sub(r"{([a-zA-Z_][a-zA-Z0-9_]*)}", replace_with_value, text)
 
@@ -105,26 +114,17 @@ def get_query_and_mutation_types(module: object):
         if inspect.isclass(obj) and ("Query" in name or "Mutation" in name):
             return name
         return None
-    
 
-def get_modules_and_classes(dir: Path) -> dict[str, str]:
+
+def get_modules_and_classes(dir: Path, in_name: str) -> dict[str, str]:
     assert dir.is_dir(), f"Provided path '{dir}' is not a directory."
 
     output: dict[str, str] = {}
 
     for file in dir.glob('*.py'):
         module_name = file.stem
-        module = import_module(f"{".".join(str(dir).split("/"))}.{module_name}")
-
-        # Import the module
-        try:
-            module = import_module(f"{".".join(str(dir).split("/"))}.{module_name}")
-            if module:
-                type_name = get_query_and_mutation_types(module)
-                if type_name:
-                    output[module_name] = type_name
-        except:
-            pass
+        if in_name in module_name:
+            output[module_name] = pascal_case(module_name)
     return output
 
 
@@ -136,6 +136,7 @@ def process_template(options: dict, flavor: str):
         template_class = module.Template  # Access class at module level
         template_class(options).generate_module()
 
+
 def finalize_schema(options: dict, flavor: str):
     dir = Path(f"strawberry_jam/chunks/{flavor}/templates")
     assert dir.is_dir(), f"Provided path '{dir}' is not a directory."
@@ -143,3 +144,12 @@ def finalize_schema(options: dict, flavor: str):
         module = import_module(f"{str(dir).replace("/", ".")}.{file.stem}")
         template_class = module.Template  # Access class at module level
         template_class(options).generate_module()
+
+
+def conv(name: str):
+    strawberry_jam_settings = getattr(settings, "STRAWBERRY_JAM", {})
+    if not isinstance(strawberry_jam_settings, dict):
+        raise TypeError("STRAWBERRY_JAM settings must be a dictionary")
+
+    conf = {**conventions.defaults, **strawberry_jam_settings}
+    return conf.get(name)

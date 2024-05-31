@@ -2,15 +2,15 @@
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
-from typing import TYPE_CHECKING, List, Annotated
+from strawberry.relay import Node
+from strawberry_django.relay import ListConnectionWithTotalCount
+from typing import TYPE_CHECKING, Annotated
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
-from strawberry_jam.node import Node
 from library.models import BookInfo
 from graph_api.gql.filters.book_info_filter import BookInfoFilter
 from graph_api.gql.orders.book_info_order import BookInfoOrder
-from graph_api.gql.query_set_managers.book_info_query_set_manager import BookInfoQuerySetManager
 
 
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 @strawberry_django.type(BookInfo, filters=BookInfoFilter, order=BookInfoOrder)
 class BookInfoNode(Node):
 
-    id: strawberry.auto = strawberry_django.field(
+    id: strawberry.relay.GlobalID = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
 
@@ -60,7 +60,4 @@ class BookInfoNode(Node):
         extensions=[IsAuthenticated()],
     )
 
-
-    class Meta:
-        queryset_manager = BookInfoQuerySetManager
 

@@ -2,8 +2,7 @@
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
-from strawberry import auto
-from typing import TYPE_CHECKING, List, Annotated
+from typing import List
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
@@ -11,27 +10,24 @@ from strawberry_django.permissions import (
 from library.models import Shelf
 
 
-if TYPE_CHECKING:
-
-    from graph_api.gql.inputs.book_create_input import BookCreateInput
-
-
-
 
 @strawberry_django.input(Shelf)
 class ShelfCreateInput:
-    id: auto
 
-    add_to_books_connection: List[Annotated["BookCreateInput", strawberry.lazy(
-        "graph_api.gql.inputs.book_create_input"
-    )]] = strawberry.field(default_factory=list)
-    remove_from_books_connection: List[Annotated["BookCreateInput", strawberry.lazy(
-        "graph_api.gql.inputs.book_create_input"
-    )]] = strawberry.field(default_factory=list)
-
-    id: strawberry.auto = strawberry_django.field(
-        extensions=[IsAuthenticated()],
+    books_add: List[strawberry.relay.GlobalID] = strawberry.field(
+        default_factory=list,
+        extensions=[IsAuthenticated()]
     )
+    books_remove: List[
+        strawberry.relay.GlobalID
+    ] = strawberry.field(
+        default_factory=list, 
+        extensions=[IsAuthenticated()]
+    )
+    # alternative implemenattion 
+    # books: strawberry.auto = strawberry_django.field(
+    #     extensions=[IsAuthenticated()],
+    # )
 
     number: strawberry.auto = strawberry_django.field(
         extensions=[IsAuthenticated()],

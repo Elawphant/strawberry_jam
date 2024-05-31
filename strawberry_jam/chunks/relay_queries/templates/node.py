@@ -1,6 +1,6 @@
 from strawberry_jam.jam import StrawberryJamTemplate
 from functools import cache
-from strawberry_jam.utils import pascal_case, snake_case
+from strawberry_jam.utils import pascal_case, snake_case, conv
 from django.db.models import Field, OneToOneField, ManyToManyField, ForeignKey
 
 TYPE_CHECKING_IMPORTS = """
@@ -29,9 +29,10 @@ REL_TO_ONE = """
 """
 
 REL_TO_MANY = """
-    {field_name}: List[Annotated["{field_node_name}", strawberry.lazy(
+    {relay_field_name}: ListConnectionWithTotalCount[Annotated["{field_node_name}", strawberry.lazy(
         "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_node_module_name}"
     )]] = strawberry_django.connection(
+        field_name="{field_name}",
         extensions=[IsAuthenticated()],
     )
 """
@@ -40,15 +41,15 @@ TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
-from typing import TYPE_CHECKING, List, Annotated
+from strawberry.relay import Node
+from strawberry_django.relay import ListConnectionWithTotalCount
+from typing import TYPE_CHECKING, Annotated
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
-from strawberry_jam.node import Node
 from {model_app_label}.models import {model_name}
 from {schema_app_label}.{api_folder_name}.filters.{filter_module_name} import {fileter_class_name}
 from {schema_app_label}.{api_folder_name}.orders.{order_module_name} import {order_class_name}
-from {schema_app_label}.{api_folder_name}.query_set_managers.{queryset_manager_module_name} import {queryset_manager_name}
 
 
 {typechecking_imports}
@@ -58,9 +59,6 @@ from {schema_app_label}.{api_folder_name}.query_set_managers.{queryset_manager_m
 class {module_class_name}(Node):
 {fields}
 
-    class Meta:
-        queryset_manager = {queryset_manager_name}
-
 """
 
 class Template(StrawberryJamTemplate):
@@ -69,21 +67,21 @@ class Template(StrawberryJamTemplate):
     @property
     @cache
     def fileter_class_name(self):
-        return pascal_case(self.model_name, "filter")
+        return pascal_case(self.model_name, conv("FILTER_SUFFIX"))
     
     @property
     @cache
     def filter_module_name(self):
-        return snake_case(self.model_name, "filter")
+        return snake_case(self.model_name, conv("FILTER_SUFFIX"))
     @property
     @cache
     def order_class_name(self):
-        return pascal_case(self.model_name, "order")
+        return pascal_case(self.model_name, conv("ORDER_SUFFIX"))
     
     @property
     @cache
     def order_module_name(self):
-        return snake_case(self.model_name, "order")
+        return snake_case(self.model_name, conv("ORDER_SUFFIX"))
     
 
     @property
@@ -97,8 +95,8 @@ class Template(StrawberryJamTemplate):
                     "schema_app_label": self.schema_app_label,
                     "api_folder_name": self.api_folder_name,
                     "module_dir_name": self.module_dir_name,
-                    "field_node_module_name": snake_case(field.remote_field.model.__name__, "node"),
-                    "field_node_name": pascal_case(field.remote_field.model.__name__, "node"),
+                    "field_node_module_name": snake_case(field.remote_field.model.__name__, conv("NODE_SUFFIX")),
+                    "field_node_name": pascal_case(field.remote_field.model.__name__, conv("NODE_SUFFIX")),
                 }))
         if imports.__len__() > 0:
             return TYPE_CHECKING_IMPORTS.format(type_checking_imports="\n".join(imports))
@@ -116,12 +114,13 @@ class Template(StrawberryJamTemplate):
                 field: OneToOneField | ManyToManyField | ForeignKey = field
                 if field.many_to_many or field.one_to_many:
                     fields_chunks.append(REL_TO_MANY.format(**{
-                        "field_name": snake_case(field.name, "connection"),
+                        "field_name": field.name,
+                        "relay_field_name": snake_case(field.name, conv("CONNECTION_SUFFIX")),
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
                         "module_dir_name": self.module_dir_name,
-                        "field_node_module_name": snake_case(field.remote_field.model.__name__, "node"),
-                        "field_node_name": pascal_case(field.remote_field.model.__name__, "node"),
+                        "field_node_module_name": snake_case(field.remote_field.model.__name__, conv("NODE_SUFFIX")),
+                        "field_node_name": pascal_case(field.remote_field.model.__name__, conv("NODE_SUFFIX")),
                     }))
                 else: 
                     fields_chunks.append(REL_TO_ONE.format(**{
@@ -129,8 +128,8 @@ class Template(StrawberryJamTemplate):
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
                         "module_dir_name": self.module_dir_name,
-                        "field_node_module_name": snake_case(field.remote_field.model.__name__, "node"),
-                        "field_node_name": pascal_case(field.remote_field.model.__name__, "node"),
+                        "field_node_module_name": snake_case(field.remote_field.model.__name__, conv("NODE_SUFFIX")),
+                        "field_node_name": pascal_case(field.remote_field.model.__name__, conv("NODE_SUFFIX")),
                     }))
             else:
                 fields_chunks.append(FIELD.format(**{
@@ -139,13 +138,3 @@ class Template(StrawberryJamTemplate):
         
         return "\n".join(fields_chunks)
     
-
-    @property
-    @cache
-    def queryset_manager_name(self):
-        return pascal_case(self.model_name, "query_set_manager")
-    
-    @property
-    @cache
-    def queryset_manager_module_name(self):
-        return snake_case(self.model_name, "query_set_manager")

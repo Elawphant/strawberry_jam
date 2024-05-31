@@ -1,6 +1,6 @@
 from strawberry_jam.jam import StrawberryJamTemplate
 from functools import cache
-from strawberry_jam.utils import pascal_case, snake_case
+from strawberry_jam.utils import pascal_case, snake_case, conv
 
 TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
@@ -20,16 +20,16 @@ class Template(StrawberryJamTemplate):
     @property
     @cache
     def node_class_name(self):
-        return pascal_case(self.model_name, "node")
+        return pascal_case(self.model_name, conv("NODE_SUFFIX"))
 
 
     @property
     @cache
     def node_module_name(self):
-        return snake_case(self.model_name, "node")
+        return snake_case(self.model_name, conv("NODE_SUFFIX"))
     
     @property
     @cache
     def field_name(self):
-        return snake_case(self.model._meta.verbose_name_plural, "connection")
+        return snake_case(self.model._meta.verbose_name_plural, conv("CONNECTION_SUFFIX"))
     

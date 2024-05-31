@@ -1,6 +1,6 @@
 from strawberry_jam.jam import StrawberryJamTemplate
 from functools import cache
-from strawberry_jam.utils import snake_case, pascal_case
+from strawberry_jam.utils import snake_case, pascal_case, conv
 from django.db.models import Field
 
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 # from my_app.graphql.nodes.my_node import MyNode
 API_DEPENDANCY_IMPORT = """
-    from {schema_app_label}.{api_folder_name}.{module_dir_name}.{field_order_module_name} import {field_order_name}
+    from {schema_app_label}.{api_folder_name}.{module_dir_name}.{field_filter_module_name} import {field_filter_name}
 """
 
 FIELD = """
@@ -19,14 +19,14 @@ FIELD = """
 """
 
 REL_TO_ONE = """
-    {field_name}: Annotated["{field_order_name}", strawberry.lazy(
-        "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_order_module_name}"
+    {field_name}: Annotated["{field_filter_name}", strawberry.lazy(
+        "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_filter_module_name}"
     )] | None
 """
 
 REL_TO_MANY = """
-    {field_name}: List[Annotated["{field_order_name}", strawberry.lazy(
-        "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_order_module_name}"
+    {field_name}: List[Annotated["{field_filter_name}", strawberry.lazy(
+        "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_filter_module_name}"
     )]] | None
 """
 
@@ -43,7 +43,7 @@ from {model_app_label}.models import {model_name}
 
 {dependancy_imports}
 
-@strawberry_django.order({model_name})
+@strawberry_django.filter({model_name}, lookups=True)
 class {module_class_name}:
 {fields}
 """
@@ -61,21 +61,21 @@ class Template(StrawberryJamTemplate):
             if field.is_relation: 
                 if field.many_to_many or field.one_to_many:
                     fields_chunks.append(REL_TO_MANY.format(**{
-                        'field_name': snake_case(field.name, "connection"),
-                        'field_order_name': pascal_case(field.remote_field.model.__name__, "order"),
+                        'field_name': snake_case(field.name, conv("CONNECTION_SUFFIX")),
+                        'field_filter_name': pascal_case(field.remote_field.model.__name__, conv("FILTER_SUFFIX")),
                         'schema_app_label': self.schema_app_label,
                         'api_folder_name': self.api_folder_name,
                         'module_dir_name': self.module_dir_name,
-                        'field_order_module_name': snake_case(field.remote_field.model.__name__, "order"),
+                        'field_filter_module_name': snake_case(field.remote_field.model.__name__, conv("FILTER_SUFFIX")),
                     }))
                 else:
                     fields_chunks.append(REL_TO_MANY.format(**{
                         'field_name': field.name,
-                        'field_order_name': pascal_case(field.remote_field.model.__name__, "order"),
+                        'field_filter_name': pascal_case(field.remote_field.model.__name__, conv("FILTER_SUFFIX")),
                         'schema_app_label': self.schema_app_label,
                         'api_folder_name': self.api_folder_name,
                         'module_dir_name': self.module_dir_name,
-                        'field_order_module_name': snake_case(field.remote_field.model.__name__, "order"),
+                        'field_filter_module_name': snake_case(field.remote_field.model.__name__, conv("FILTER_SUFFIX")),
                     }))
             else:
                 fields_chunks.append(FIELD.format(field_name=field.name))
@@ -92,8 +92,8 @@ class Template(StrawberryJamTemplate):
                     "schema_app_label": self.schema_app_label,
                     "api_folder_name": self.api_folder_name,
                     "module_dir_name": self.module_dir_name,
-                    "field_order_module_name": snake_case(field.remote_field.model.__name__, "order"),
-                    "field_order_name": pascal_case(field.remote_field.model.__name__, "order"),
+                    "field_filter_module_name": snake_case(field.remote_field.model.__name__, conv("FILTER_SUFFIX")),
+                    "field_filter_name": pascal_case(field.remote_field.model.__name__, conv("FILTER_SUFFIX")),
                 }))
         if imports.__len__() > 0:
             return TYPE_CHECKING_IMPORTS.format(type_checking_imports="".join(imports))

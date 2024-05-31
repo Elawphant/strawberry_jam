@@ -1,14 +1,18 @@
 from strawberry_jam.jam import StrawberryJamTemplate
 from functools import cache
-from strawberry_jam.utils import pascal_case, snake_case
+from strawberry_jam.utils import pascal_case, snake_case, conv
 from django.db.models import Field, OneToOneField, ManyToManyField, ForeignKey
+
+
+ADD = conv("ADD_TO_COLLECTION_SUFFIX")
+REMOVE = conv("REMOVE_FROM_COLLECTION_SUFFIX")
 
 TYPE_CHECKING_IMPORTS = """
 if TYPE_CHECKING:
 {type_checking_imports}
 """
 
-API_DEPENDENCY_IMPORT = """
+API_DEPENDANCY_IMPORT = """
     from {schema_app_label}.{api_folder_name}.{module_dir_name}.{field_input_module_name} import {field_input_name}
 """
 
@@ -20,37 +24,44 @@ FIELD = """
 """
 
 REL_TO_ONE = """
-    {field_name}: Annotated["{field_input_name}", strawberry.lazy(
-        "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_input_module_name}"
-    )]
+    {field_name}: strawberry.auto = strawberry_django.field(
+        extensions=[IsAuthenticated()],
+    )
 """
 
 REL_TO_MANY = """
-    add_to_{field_name}: List[Annotated["{field_input_name}", strawberry.lazy(
-        "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_input_module_name}"
-    )]] = strawberry.field(default_factory=list)
-    remove_from_{field_name}: List[Annotated["{field_input_name}", strawberry.lazy(
-        "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_input_module_name}"
-    )]] = strawberry.field(default_factory=list)
+    {field_name}_{add_suffix}: List[strawberry.relay.GlobalID] = strawberry.field(
+        default_factory=list,
+        extensions=[IsAuthenticated()]
+    )
+    {field_name}_{remove_suffix}: List[
+        strawberry.relay.GlobalID
+    ] = strawberry.field(
+        default_factory=list, 
+        extensions=[IsAuthenticated()]
+    )
+    # alternative implemenattion 
+    # {field_name}: strawberry.auto = strawberry_django.field(
+    #     extensions=[IsAuthenticated()],
+    # )
 """
 
 TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
-from strawberry import auto
-from typing import TYPE_CHECKING, List, Annotated
+from typing import List
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
 
 from {model_app_label}.models import {model_name}
-{typechecking_imports}
+
 
 
 @strawberry_django.input({model_name})
 class {module_class_name}:
-    id: auto
+    id: strawberry.auto
 {fields}
 
 
@@ -58,7 +69,7 @@ class {module_class_name}:
 
 class Template(StrawberryJamTemplate):
     template: str = TEMPLATE
-    
+
 
     @property
     @cache
@@ -67,12 +78,12 @@ class Template(StrawberryJamTemplate):
         for field in self.model._meta.get_fields():
             if field.is_relation:
                 field: OneToOneField | ManyToManyField | ForeignKey = field
-                imports.append(API_DEPENDENCY_IMPORT.format(**{
+                imports.append(API_DEPENDANCY_IMPORT.format(**{
                     "schema_app_label": self.schema_app_label,
                     "api_folder_name": self.api_folder_name,
                     "module_dir_name": self.module_dir_name,
-                    "field_input_module_name": snake_case(field.remote_field.model.__name__, "update_input"),
-                    "field_input_name": pascal_case(field.remote_field.model.__name__, "update_input"),
+                    "field_input_module_name": snake_case(field.remote_field.model.__name__, "create_input"),
+                    "field_input_name": pascal_case(field.remote_field.model.__name__, "create_input"),
                 }))
         if imports.__len__() > 0:
             return TYPE_CHECKING_IMPORTS.format(type_checking_imports="".join(imports))
@@ -90,12 +101,14 @@ class Template(StrawberryJamTemplate):
                 field: OneToOneField | ManyToManyField | ForeignKey = field
                 if field.many_to_many or field.one_to_many:
                     fields_chunks.append(REL_TO_MANY.format(**{
-                        "field_name": snake_case(field.name, "connection"),
+                        "field_name": snake_case(field.name),
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
                         "module_dir_name": self.module_dir_name,
-                        "field_input_module_name": snake_case(field.remote_field.model.__name__, "update_input"),
-                        "field_input_name": pascal_case(field.remote_field.model.__name__, "update_input"),
+                        "field_input_module_name": snake_case(field.remote_field.model.__name__, "create_input"),
+                        "field_input_name": pascal_case(field.remote_field.model.__name__, "create_input"),
+                        "add_suffix": ADD,
+                        "remove_suffix": REMOVE
                     }))
                 else:
                     fields_chunks.append(REL_TO_ONE.format(**{
@@ -103,12 +116,13 @@ class Template(StrawberryJamTemplate):
                         "schema_app_label": self.schema_app_label,
                         "api_folder_name": self.api_folder_name,
                         "module_dir_name": self.module_dir_name,
-                        "field_input_module_name": snake_case(field.remote_field.model.__name__, "update_input"),
-                        "field_input_name": pascal_case(field.remote_field.model.__name__, "update_input"),
+                        "field_input_module_name": snake_case(field.remote_field.model.__name__, "create_input"),
+                        "field_input_name": pascal_case(field.remote_field.model.__name__, "create_input"),
                     }))
             else:
-                fields_chunks.append(FIELD.format(**{
-                    "field_name": field.name
-                }))
+                if field.name != "id":
+                    fields_chunks.append(FIELD.format(**{
+                        "field_name": field.name
+                    }))
         
         return "".join(fields_chunks)

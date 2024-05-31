@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# from graph_api.gql.urls import urlpatterns
+from graph_api.gql import urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('/', include(urlpatterns))
+    path('api/', include(urls))
 ]

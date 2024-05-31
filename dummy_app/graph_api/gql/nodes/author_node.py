@@ -2,15 +2,15 @@
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
-from typing import TYPE_CHECKING, List, Annotated
+from strawberry.relay import Node
+from strawberry_django.relay import ListConnectionWithTotalCount
+from typing import TYPE_CHECKING, Annotated
 from strawberry_django.permissions import (
     IsAuthenticated,
 )
-from strawberry_jam.node import Node
 from library.models import Author
 from graph_api.gql.filters.author_filter import AuthorFilter
 from graph_api.gql.orders.author_order import AuthorOrder
-from graph_api.gql.query_set_managers.author_query_set_manager import AuthorQuerySetManager
 
 
 
@@ -22,9 +22,9 @@ if TYPE_CHECKING:
 
 
 @strawberry_django.type(Author, filters=AuthorFilter, order=AuthorOrder)
-class AuthorNode(Node):
+class AuthorNode(strawberry.relay.Node):
 
-    id: strawberry.auto = strawberry_django.field(
+    id: strawberry.relay.GlobalID = strawberry_django.field(
         extensions=[IsAuthenticated()],
     )
 
@@ -34,13 +34,11 @@ class AuthorNode(Node):
     )
 
 
-    books_connection: List[Annotated["BookNode", strawberry.lazy(
+    books_connection: ListConnectionWithTotalCount[Annotated["BookNode", strawberry.lazy(
         "graph_api.gql.nodes.book_node"
     )]] = strawberry_django.connection(
+        field_name="books",
         extensions=[IsAuthenticated()],
     )
 
-
-    class Meta:
-        queryset_manager = AuthorQuerySetManager
 

@@ -7,27 +7,34 @@ TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
-from typing import cast
+from strawberry_jam.mutations import create, update
+from typing import cast, TYPE_CHECKING, Annotated
 
-from {schema_app_label}.{api_folder_name}.nodes.{node_module_name} import {node_class_name}
 from {schema_app_label}.{api_folder_name}.inputs.{create_input_module_name} import {create_input_class_name}
 from {schema_app_label}.{api_folder_name}.inputs.{update_input_module_name} import {update_input_class_name}
-from {schema_app_label}.{api_folder_name}.forms.{create_form_module_name} import {create_form_class_name}
-from {schema_app_label}.{api_folder_name}.forms.{update_form_module_name} import {update_form_class_name}
+
+if TYPE_CHECKING:
+    from {schema_app_label}.{api_folder_name}.nodes.{node_module_name} import {node_class_name}
 
 @strawberry.type(name="Mutation")
 class {module_class_name}:
-    @strawberry_django.mutation(handle_django_errors=True)
-    def create_{field_name}(self, info, data: {create_input_class_name}) -> {node_class_name}:
-        form = {create_form_class_name}(data, info)
-        return cast({node_class_name}, form.save())
+    create_{field_name}: Annotated['{node_class_name}', strawberry.lazy(
+        "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
+    )] = create(
+        {create_input_class_name},
+        handle_django_errors=True
+    )
 
-    @strawberry_django.mutation(handle_django_errors=True)
-    def create_{field_name}(self, info, data: {update_input_class_name}) -> {node_class_name}:
-        form = {update_form_class_name}(data)
-        return cast({node_class_name}, form.save())
+    update_{field_name}: Annotated['{node_class_name}', strawberry.lazy(
+        "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
+    )] = update(
+        {update_input_class_name},
+        handle_django_errors=True
+    )
 
-    delete_{field_name}: {node_class_name} = strawberry_django.mutations.delete(
+    delete_{field_name}: Annotated['{node_class_name}', strawberry.lazy(
+        "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
+    )] = strawberry_django.mutations.delete(
         strawberry_django.NodeInput,
         handle_django_errors=True
     )

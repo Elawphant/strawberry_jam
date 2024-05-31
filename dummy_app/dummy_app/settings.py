@@ -125,4 +125,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MAP_AUTO_ID_AS_GLOBAL_ID=True
+STRAWBERRY_DJANGO = {
+    "MAP_AUTO_ID_AS_GLOBAL_ID":True
+}

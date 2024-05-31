@@ -2,27 +2,34 @@
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
-from typing import cast
+from strawberry_jam.mutations import create, update
+from typing import cast, TYPE_CHECKING, Annotated
 
-from graph_api.gql.nodes.book_info_node import BookInfoNode
 from graph_api.gql.inputs.book_info_create_input import BookInfoCreateInput
 from graph_api.gql.inputs.book_info_update_input import BookInfoUpdateInput
-from graph_api.gql.forms.book_info_create_form import BookInfoCreateForm
-from graph_api.gql.forms.book_info_update_form import BookInfoUpdateForm
+
+if TYPE_CHECKING:
+    from graph_api.gql.nodes.book_info_node import BookInfoNode
 
 @strawberry.type(name="Mutation")
 class BookInfoMutation:
-    @strawberry_django.mutation(handle_django_errors=True)
-    def create_book_info(self, info, data: BookInfoCreateInput) -> BookInfoNode:
-        form = BookInfoCreateForm(data, info)
-        return cast(BookInfoNode, form.save())
+    create_book_info: Annotated['BookInfoNode', strawberry.lazy(
+        "graph_api.gql.nodes.book_info_node"
+    )] = create(
+        BookInfoCreateInput,
+        handle_django_errors=True
+    )
 
-    @strawberry_django.mutation(handle_django_errors=True)
-    def create_book_info(self, info, data: BookInfoUpdateInput) -> BookInfoNode:
-        form = BookInfoUpdateForm(data)
-        return cast(BookInfoNode, form.save())
+    update_book_info: Annotated['BookInfoNode', strawberry.lazy(
+        "graph_api.gql.nodes.book_info_node"
+    )] = update(
+        BookInfoUpdateInput,
+        handle_django_errors=True
+    )
 
-    delete_book_info: BookInfoNode = strawberry_django.mutations.delete(
+    delete_book_info: Annotated['BookInfoNode', strawberry.lazy(
+        "graph_api.gql.nodes.book_info_node"
+    )] = strawberry_django.mutations.delete(
         strawberry_django.NodeInput,
         handle_django_errors=True
     )

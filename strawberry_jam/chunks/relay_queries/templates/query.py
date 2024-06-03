@@ -6,11 +6,18 @@ TEMPLATE = """
 # TODO: Strawberry-Jam: review this file
 import strawberry
 import strawberry_django
+from strawberry_django.permissions import (
+    IsAuthenticated,
+)
 from {schema_app_label}.{api_folder_name}.nodes.{node_module_name} import {node_class_name}
 
 @strawberry.type(name="Query")
 class {module_class_name}:
-    {field_name}: strawberry_django.relay.ListConnectionWithTotalCount[{node_class_name}] = strawberry_django.connection()
+    {field_name}: strawberry_django.relay.ListConnectionWithTotalCount[{node_class_name}] = strawberry_django.connection(
+        extensions=[
+            IsAuthenticated(),
+        ]
+    )
 """
 
 class Template(StrawberryJamTemplate):

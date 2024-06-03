@@ -4,6 +4,9 @@ import strawberry
 import strawberry_django
 from strawberry_jam.mutations import create, update
 from typing import cast, TYPE_CHECKING, Annotated
+from strawberry_django.permissions import (
+    IsAuthenticated,
+)
 
 from graph_api.gql.inputs.book_create_input import BookCreateInput
 from graph_api.gql.inputs.book_update_input import BookUpdateInput
@@ -17,20 +20,30 @@ class BookMutation:
         "graph_api.gql.nodes.book_node"
     )] = create(
         BookCreateInput,
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
     )
 
     update_book: Annotated['BookNode', strawberry.lazy(
         "graph_api.gql.nodes.book_node"
     )] = update(
         BookUpdateInput,
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
     )
 
     delete_book: Annotated['BookNode', strawberry.lazy(
         "graph_api.gql.nodes.book_node"
     )] = strawberry_django.mutations.delete(
         strawberry_django.NodeInput,
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
+
     )
 

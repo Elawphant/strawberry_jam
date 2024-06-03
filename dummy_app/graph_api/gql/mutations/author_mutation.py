@@ -4,6 +4,9 @@ import strawberry
 import strawberry_django
 from strawberry_jam.mutations import create, update
 from typing import cast, TYPE_CHECKING, Annotated
+from strawberry_django.permissions import (
+    IsAuthenticated,
+)
 
 from graph_api.gql.inputs.author_create_input import AuthorCreateInput
 from graph_api.gql.inputs.author_update_input import AuthorUpdateInput
@@ -17,20 +20,30 @@ class AuthorMutation:
         "graph_api.gql.nodes.author_node"
     )] = create(
         AuthorCreateInput,
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
     )
 
     update_author: Annotated['AuthorNode', strawberry.lazy(
         "graph_api.gql.nodes.author_node"
     )] = update(
         AuthorUpdateInput,
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
     )
 
     delete_author: Annotated['AuthorNode', strawberry.lazy(
         "graph_api.gql.nodes.author_node"
     )] = strawberry_django.mutations.delete(
         strawberry_django.NodeInput,
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
+
     )
 

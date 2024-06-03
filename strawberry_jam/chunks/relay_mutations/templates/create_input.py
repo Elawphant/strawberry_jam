@@ -18,32 +18,24 @@ API_DEPENDANCY_IMPORT = """
 
 
 FIELD = """
-    {field_name}: strawberry.auto = strawberry_django.field(
-        extensions=[IsAuthenticated()],
-    )
+    {field_name}: strawberry.auto = strawberry_django.field()
 """
 
 REL_TO_ONE = """
-    {field_name}: strawberry.auto = strawberry_django.field(
-        extensions=[IsAuthenticated()],
-    )
+    {field_name}: strawberry.auto = strawberry_django.field()
 """
 
 REL_TO_MANY = """
     {field_name}_{add_suffix}: List[strawberry.relay.GlobalID] = strawberry.field(
         default_factory=list,
-        extensions=[IsAuthenticated()]
     )
     {field_name}_{remove_suffix}: List[
         strawberry.relay.GlobalID
     ] = strawberry.field(
         default_factory=list, 
-        extensions=[IsAuthenticated()]
     )
     # alternative implemenattion 
-    # {field_name}: strawberry.auto = strawberry_django.field(
-    #     extensions=[IsAuthenticated()],
-    # )
+    # {field_name}: strawberry.auto = strawberry_django.field()
 """
 
 TEMPLATE = """
@@ -51,10 +43,6 @@ TEMPLATE = """
 import strawberry
 import strawberry_django
 from typing import List
-from strawberry_django.permissions import (
-    IsAuthenticated,
-)
-
 from {model_app_label}.models import {model_name}
 
 

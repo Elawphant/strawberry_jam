@@ -1,6 +1,6 @@
 import re
 from django.core.exceptions import ValidationError
-from django.db.models import QuerySet
+from django.db.models import Manager
 from strawberry_jam.utils import conv
 from strawberry.relay import GlobalID
 from strawberry_django.mutations import update, resolvers
@@ -32,7 +32,7 @@ import dataclasses
 ADD = conv("ADD_TO_COLLECTION_SUFFIX")
 REMOVE = conv("REMOVE_FROM_COLLECTION_SUFFIX")
 
-REGEX = rf"^(.+)({ADD}|{REMOVE})$"
+REGEX = rf"^(.+)_({ADD}|{REMOVE})$"
 
 
 def validate_relation_mutation_add_remove_fields_input(data: dict) -> dict:
@@ -46,9 +46,9 @@ def validate_relation_mutation_add_remove_fields_input(data: dict) -> dict:
             if field not in tracked_ids:
                 tracked_ids[field] = {ADD: set(), REMOVE: set()}
             if suffix == ADD:
-                tracked_ids[suffix][ADD].update(value)
+                tracked_ids[field][ADD].update(value)
             if suffix == REMOVE:
-                tracked_ids[suffix][REMOVE].update(value)
+                tracked_ids[field][REMOVE].update(value)
 
     errors = {}
     # Check for conflicts in each suffix and add errors to the form
@@ -60,22 +60,26 @@ def validate_relation_mutation_add_remove_fields_input(data: dict) -> dict:
     return errors
 
 
-def resolve_vdata(vdata, instance):
-    for maybe_connection_field_name, value in vdata.items():
-        value = [global_id for global_id in cast(List[GlobalID], value)]
-
+def resolve_vdata(data, instance):
+    vdata = {}
+    for maybe_connection_field_name, value in data.items():
         match = re.match(REGEX, maybe_connection_field_name)
         if match:
-            relation: QuerySet = getattr(instance, relation, None)
-            if relation is None or not isinstance(relation, QuerySet):
+            value = [global_id.node_id for global_id in cast(List[GlobalID], value)]
+            field, suffix = match.groups()
+            relation: Manager = getattr(instance, field, None)
+            if relation is None or not isinstance(relation, Manager):
                 raise ValidationError({maybe_connection_field_name, f"Invalid field {maybe_connection_field_name}"})
             related_field_name, suffix = match.groups()
+            if related_field_name not in vdata:
+                vdata[related_field_name] = relation.values_list('id', flat=True)
             if suffix == ADD:
-                vdata[related_field_name] = value
+                vdata[related_field_name] = set(vdata[related_field_name]).union(value)
             elif suffix == REMOVE:
-                vdata[related_field_name] = [id for id in getattr(
-                    instance, related_field_name).values_list('id', flat=True) if id not in value]
-            vdata.pop(maybe_connection_field_name)
+                vdata[related_field_name] = set(vdata[related_field_name]).difference(value)
+            vdata[related_field_name] = list(vdata[related_field_name])
+        else:
+            vdata[maybe_connection_field_name] = value
     return vdata
 
 

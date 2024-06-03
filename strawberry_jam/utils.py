@@ -31,7 +31,7 @@ def create_directory(dir_path: Path):
 
 def create_module(filename: str, folder_path: Path, content: str, overwrite=False):
     file_path = Path(folder_path / f"{filename}.py")
-    if not file_path.exists() or overwrite == True:
+    if not file_path.exists() or (file_path.exists() and overwrite):
         with open(file_path, 'w') as file:
             file.write(content)
 
@@ -142,7 +142,7 @@ def finalize_schema(options: dict, flavor: str):
     assert dir.is_dir(), f"Provided path '{dir}' is not a directory."
     for file in [file for file in dir.glob('*.py') if file.stem in ["urls", "schema"]]:
         module = import_module(f"{str(dir).replace("/", ".")}.{file.stem}")
-        template_class = module.Template  # Access class at module level
+        template_class = module.Template
         template_class(options).generate_module()
 
 

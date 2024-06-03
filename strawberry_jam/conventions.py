@@ -9,7 +9,7 @@ defaults = {
     "FILTER_SUFFIX": "filter",
     "ORDER_SUFFIX": "order",
     "QUERY_SUFFIX": "query",
-    "MUTATION_SUFFIX": "query",
+    "MUTATION_SUFFIX": "mutation",
 
     # folder names
     "NODE_FOLDER_NAME": "nodes",

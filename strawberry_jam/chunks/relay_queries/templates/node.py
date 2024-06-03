@@ -15,17 +15,13 @@ API_DEPENDANCY_IMPORT = """
 
 
 FIELD = """
-    {field_name}: strawberry.auto = strawberry_django.field(
-        extensions=[IsAuthenticated()],
-    )
+    {field_name}: strawberry.auto = strawberry_django.field()
 """
 
 REL_TO_ONE = """
     {field_name}: Annotated["{field_node_name}", strawberry.lazy(
         "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_node_module_name}"
-    )] = strawberry_django.node(
-        extensions=[IsAuthenticated()],
-    )
+    )] = strawberry_django.node()
 """
 
 REL_TO_MANY = """
@@ -33,7 +29,6 @@ REL_TO_MANY = """
         "{schema_app_label}.{api_folder_name}.{module_dir_name}.{field_node_module_name}"
     )]] = strawberry_django.connection(
         field_name="{field_name}",
-        extensions=[IsAuthenticated()],
     )
 """
 
@@ -44,9 +39,6 @@ import strawberry_django
 from strawberry.relay import Node
 from strawberry_django.relay import ListConnectionWithTotalCount
 from typing import TYPE_CHECKING, Annotated
-from strawberry_django.permissions import (
-    IsAuthenticated,
-)
 from {model_app_label}.models import {model_name}
 from {schema_app_label}.{api_folder_name}.filters.{filter_module_name} import {fileter_class_name}
 from {schema_app_label}.{api_folder_name}.orders.{order_module_name} import {order_class_name}
@@ -55,10 +47,9 @@ from {schema_app_label}.{api_folder_name}.orders.{order_module_name} import {ord
 {typechecking_imports}
 
 
-@strawberry_django.type({model_name}, filters={fileter_class_name}, order={order_class_name})
+@strawberry_django.type({model_name}, filters={fileter_class_name}, order={order_class_name}, fields=["id"])
 class {module_class_name}(Node):
 {fields}
-
 """
 
 class Template(StrawberryJamTemplate):
@@ -132,9 +123,10 @@ class Template(StrawberryJamTemplate):
                         "field_node_name": pascal_case(field.remote_field.model.__name__, conv("NODE_SUFFIX")),
                     }))
             else:
-                fields_chunks.append(FIELD.format(**{
-                    "field_name": field.name
-                }))
+                if field.name != "id":
+                    fields_chunks.append(FIELD.format(**{
+                        "field_name": field.name
+                    }))
         
         return "\n".join(fields_chunks)
     

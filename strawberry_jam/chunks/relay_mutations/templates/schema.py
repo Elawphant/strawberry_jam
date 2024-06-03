@@ -16,7 +16,7 @@ import strawberry
 class Query(
 {queries_list}
     ): 
-    node: strawberry_django.relay.Node = strawberry_django.relay.node()
+    node: strawberry.relay.Node = strawberry.relay.node()
     
 @strawberry.type
 class Mutation(
@@ -54,7 +54,6 @@ class Template(StrawberryJamTemplate):
         return 
 
     @property
-    @cache
     def queries(self):
         dir = self.api_folder_path / Path(conv("QUERIES_FOLDER_NAME"))
         if not dir.is_dir():
@@ -104,8 +103,8 @@ class Template(StrawberryJamTemplate):
     @property
     @cache
     def include_queries(self):
-        return "query=Query" if self.queries_list.__len__() > 0 else ""
+        return "query=Query" if self.queries.keys().__len__() > 0 else ""
     @property
     @cache
     def include_mutations(self):
-        return "mutation=Mutation" if self.mutations_list.__len__() > 0 else ""
+        return "mutation=Mutation" if self.mutations.keys().__len__() > 0 else ""

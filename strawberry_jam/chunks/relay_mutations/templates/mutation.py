@@ -9,6 +9,9 @@ import strawberry
 import strawberry_django
 from strawberry_jam.mutations import create, update
 from typing import cast, TYPE_CHECKING, Annotated
+from strawberry_django.permissions import (
+    IsAuthenticated,
+)
 
 from {schema_app_label}.{api_folder_name}.inputs.{create_input_module_name} import {create_input_class_name}
 from {schema_app_label}.{api_folder_name}.inputs.{update_input_module_name} import {update_input_class_name}
@@ -22,21 +25,31 @@ class {module_class_name}:
         "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
     )] = create(
         {create_input_class_name},
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
     )
 
     update_{field_name}: Annotated['{node_class_name}', strawberry.lazy(
         "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
     )] = update(
         {update_input_class_name},
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
     )
 
     delete_{field_name}: Annotated['{node_class_name}', strawberry.lazy(
         "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
     )] = strawberry_django.mutations.delete(
         strawberry_django.NodeInput,
-        handle_django_errors=True
+        handle_django_errors=True,
+        extensions=[
+            IsAuthenticated(),
+        ]
+
     )
 
 """

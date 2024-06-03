@@ -3,10 +3,6 @@
 import strawberry
 import strawberry_django
 from typing import List
-from strawberry_django.permissions import (
-    IsAuthenticated,
-)
-
 from library.models import Author
 
 
@@ -14,24 +10,18 @@ from library.models import Author
 @strawberry_django.input(Author)
 class AuthorCreateInput:
 
-    name: strawberry.auto = strawberry_django.field(
-        extensions=[IsAuthenticated()],
-    )
+    name: strawberry.auto = strawberry_django.field()
 
     books_add: List[strawberry.relay.GlobalID] = strawberry.field(
         default_factory=list,
-        extensions=[IsAuthenticated()]
     )
     books_remove: List[
         strawberry.relay.GlobalID
     ] = strawberry.field(
         default_factory=list, 
-        extensions=[IsAuthenticated()]
     )
     # alternative implemenattion 
-    # books: strawberry.auto = strawberry_django.field(
-    #     extensions=[IsAuthenticated()],
-    # )
+    # books: strawberry.auto = strawberry_django.field()
 
 
 

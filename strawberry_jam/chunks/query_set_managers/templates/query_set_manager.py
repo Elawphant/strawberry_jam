@@ -1,5 +1,5 @@
 
-from strawberry_jam.jam import StrawberryJamTemplate
+from strawberry_jam.template import StrawberryJamTemplate
 
 TEMPLATE = """
 from strawberry_jam.queryset import QuerySetManager

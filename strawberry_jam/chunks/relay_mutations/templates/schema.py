@@ -1,4 +1,4 @@
-from strawberry_jam.jam import StrawberryJamTemplate
+from strawberry_jam.template import StrawberryJamTemplate
 from functools import cache
 from strawberry_jam.utils import get_modules_and_classes, snake_case, conv, create_directory
 from pathlib import Path

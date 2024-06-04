@@ -1,4 +1,4 @@
-from strawberry_jam.jam import StrawberryJamTemplate
+from strawberry_jam.template import StrawberryJamTemplate
 from functools import cache
 from strawberry_jam.utils import pascal_case, snake_case, conv
 

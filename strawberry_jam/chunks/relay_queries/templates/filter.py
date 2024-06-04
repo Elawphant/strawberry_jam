@@ -1,4 +1,4 @@
-from strawberry_jam.jam import StrawberryJamTemplate
+from strawberry_jam.template import StrawberryJamTemplate
 from functools import cache
 from strawberry_jam.utils import snake_case, pascal_case, conv
 from django.db.models import Field

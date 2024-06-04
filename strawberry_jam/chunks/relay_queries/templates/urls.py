@@ -1,5 +1,5 @@
 
-from strawberry_jam.jam import StrawberryJamTemplate
+from strawberry_jam.template import StrawberryJamTemplate
 from strawberry_jam.utils import snake_case
 from functools import cache
 from pathlib import Path

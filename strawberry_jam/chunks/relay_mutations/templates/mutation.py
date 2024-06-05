@@ -25,7 +25,6 @@ class {module_class_name}:
         "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
     )] = create(
         {create_input_class_name},
-        handle_django_errors=True,
         extensions=[
             IsAuthenticated(),
         ]
@@ -35,7 +34,6 @@ class {module_class_name}:
         "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
     )] = update(
         {update_input_class_name},
-        handle_django_errors=True,
         extensions=[
             IsAuthenticated(),
         ]
@@ -45,7 +43,6 @@ class {module_class_name}:
         "{schema_app_label}.{api_folder_name}.nodes.{node_module_name}"
     )] = strawberry_django.mutations.delete(
         strawberry_django.NodeInput,
-        handle_django_errors=True,
         extensions=[
             IsAuthenticated(),
         ]

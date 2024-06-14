@@ -1,5 +1,5 @@
 from pathlib import Path
-import re
+import re, os
 import inspect
 from django.apps import apps
 from django.core.management.base import CommandError
@@ -128,6 +128,27 @@ def get_modules_and_classes(dir: Path, in_name: str) -> dict[str, str]:
     return output
 
 
+def create_import_dict_from_generated_modules(schema_dir):
+    class_import_dict = {}
+
+    for root, _, files in os.walk(schema_dir):
+        for file in files:
+            if file.endswith(".py"):
+                file_path = Path(root) / file
+                module_path = file_path.relative_to(schema_dir).with_suffix('')
+                module_import_path = '.'.join(module_path.parts)
+                
+                with open(file_path, 'r') as f:
+                    content = f.read()
+
+                class_names = re.findall(r'class (\w+)\(', content)
+                if class_names:
+                    class_import_dict[module_import_path] = class_names
+
+    return class_import_dict
+
+
+
 def process_template(options: dict, flavor: str):
     dir = Path(f"strawberry_jam/chunks/{flavor}/templates")
     assert dir.is_dir(), f"Provided path '{dir}' is not a directory."
@@ -140,6 +161,12 @@ def process_template(options: dict, flavor: str):
 def finalize_schema(options: dict, flavor: str):
     dir = Path(f"strawberry_jam/chunks/{flavor}/templates")
     assert dir.is_dir(), f"Provided path '{dir}' is not a directory."
+
+    schema_dir = Path(f"{options.get("schema_app_label") / options.get("api_folder_name")}")
+    schema_dict = {}
+    # for file in [file for file in dir.glob('*.py') if file.stem not in ["__init__", "urls", "schema"]]:
+    #     schema_dict[file.]
+
     for file in [file for file in dir.glob('*.py') if file.stem in ["urls", "schema"]]:
         module = import_module(f"{str(dir).replace("/", ".")}.{file.stem}")
         template_class = module.Template

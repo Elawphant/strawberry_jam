@@ -5,7 +5,13 @@ Codegen django command for strawberry-django for rapid schema boilerplate genera
 ## Installation
 
 ```txt
-coming soon on pypi
+pip3 install strawberry_jam
+```
+
+or using uv
+
+```txt
+uv pip install strawberry_jam
 ```
 
 Add `'strawberry_jam'` to your project's `settings.py`.

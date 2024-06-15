@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "strawberry_jam"
-version = "1.0.0"
+version = "1.1.0"
 description = "Codegen django command for strawberry-django for rapid schema boilerplate generation from given models"
 
 license = "MIT"

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "strawberry_jam"
+version = "1.0.0"
+description = "Codegen django command for strawberry-django for rapid schema boilerplate generation from given models"
+authors = [
+    { name="Gevorg Hakobyan", email="gevorg.hakobyan@elawphant.am" }
+]
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://github.com/Elawphant/strawberry_jam"
+Documentation = "https://github.com/Elawphant/strawberry_jam#readme"
+Source = "https://github.com/Elawphant/strawberry_jam"
+Tracker = "https://github.com/Elawphant/strawberry_jam/issues"
+
+[project.dependencies]
+strawberry-graphql-django = "^0.44.1"
+django = "^4.0.0"
+tqdm = "^4.50.0"
+pytest = "^8.2.1"

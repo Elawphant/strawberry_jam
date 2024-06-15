@@ -6,6 +6,7 @@ from django.core.management.base import CommandError
 from importlib import import_module
 from django.conf import settings
 from strawberry_jam import conventions
+import importlib
 
 
 def extract_docstring_variables(docstring):
@@ -150,25 +151,30 @@ def create_import_dict_from_generated_modules(schema_dir):
 
 
 def process_template(options: dict, flavor: str):
-    dir = Path(f"strawberry_jam/chunks/{flavor}/templates")
+    spec = importlib.util.find_spec("strawberry_jam")
+    if spec is None:
+        raise ImportError("Unable to find 'strawberry_jam' package")
+    dir = Path(spec.origin).parent / Path(f"chunks/{flavor}/templates")
     assert dir.is_dir(), f"Provided path '{dir}' is not a directory."
+    print(dir, "-------")
     for file in [file for file in dir.glob('*.py') if file.stem not in ["__init__", "urls", "schema"]]:
-        module = import_module(f"{str(dir).replace("/", ".")}.{file.stem}")
+        module_path = f"strawberry_jam.chunks.{flavor}.templates.{file.stem}"
+        module = import_module(module_path)
         template_class = module.Template  # Access class at module level
         template_class(options).generate_module()
 
 
 def finalize_schema(options: dict, flavor: str):
-    dir = Path(f"strawberry_jam/chunks/{flavor}/templates")
+    spec = importlib.util.find_spec("strawberry_jam")
+    if spec is None:
+        raise ImportError("Unable to find 'strawberry_jam' package")
+    dir = Path(spec.origin).parent / Path(f"chunks/{flavor}/templates")
+
     assert dir.is_dir(), f"Provided path '{dir}' is not a directory."
 
-    schema_dir = Path(f"{options.get("schema_app_label") / options.get("api_folder_name")}")
-    schema_dict = {}
-    # for file in [file for file in dir.glob('*.py') if file.stem not in ["__init__", "urls", "schema"]]:
-    #     schema_dict[file.]
-
     for file in [file for file in dir.glob('*.py') if file.stem in ["urls", "schema"]]:
-        module = import_module(f"{str(dir).replace("/", ".")}.{file.stem}")
+        module_path = f"strawberry_jam.chunks.{flavor}.templates.{file.stem}"
+        module = import_module(module_path)
         template_class = module.Template
         template_class(options).generate_module()
 

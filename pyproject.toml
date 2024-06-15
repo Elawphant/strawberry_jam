@@ -1,25 +1,28 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "strawberry_jam"
 version = "1.0.0"
 description = "Codegen django command for strawberry-django for rapid schema boilerplate generation from given models"
+
+license = "MIT"
+
 authors = [
-    { name="Gevorg Hakobyan", email="gevorg.hakobyan@elawphant.am" }
+    "Gevorg Hakobyan <gevorg.hakobyan@elawphant.am>"
 ]
-readme = "README.md"
-license = { file="LICENSE" }
-requires-python = ">=3.6"
 
-[project.urls]
-Homepage = "https://github.com/Elawphant/strawberry_jam"
-Documentation = "https://github.com/Elawphant/strawberry_jam#readme"
-Source = "https://github.com/Elawphant/strawberry_jam"
-Tracker = "https://github.com/Elawphant/strawberry_jam/issues"
+repository = "https://github.com/Elawphant/strawberry_jam"
+homepage = "https://github.com/Elawphant/strawberry_jam"
 
-[project.dependencies]
+# README file(s) are used as the package description
+readme = ["README.md", "LICENSE"]
+
+# Keywords (translated to tags on the package index)
+keywords = ["graphql", "django", "strawberry-graphql-django", "command"]
+
+[tool.poetry.dependencies]
+# Compatible Python versions
+python = ">=3.8"
+# Standard dependency with semver constraints
+aiohttp = "^3.8.1"
 strawberry-graphql-django = "^0.44.1"
 django = "^4.0.0"
 tqdm = "^4.50.0"

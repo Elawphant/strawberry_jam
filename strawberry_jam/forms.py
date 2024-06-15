@@ -4,7 +4,6 @@ from strawberry_jam.utils import conv
 import re
 from typing import Dict, Any
 from strawberry.relay import GlobalID
-from django.db.models import Model
 from typing import cast, List
 from strawberry_jam.mutations import validate_relation_mutation_add_remove_fields_input
 
